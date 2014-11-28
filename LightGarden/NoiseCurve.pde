@@ -1,13 +1,12 @@
 class NoiseCurve {
   ArrayList<Point> points;
-  int numPoints;
+  float numPoints;
   float xPos;
   float yPos;
   float rotation = 0;
-  int pointSize = 8;
-  color black = color(0,0,0,0.2);
+  float pointSize = 9;
   
-  NoiseCurve(int size,float x, float y, float rotation){
+  NoiseCurve(float size,float x, float y, float rotation){
     xPos = x;
     yPos = y;
     points = new ArrayList<Point>();
@@ -21,15 +20,14 @@ class NoiseCurve {
     }
   }
   
-  NoiseCurve(int size, RPoint marker){
+  NoiseCurve(float size, RPoint marker){
     this(size,marker.x,marker.y,marker.rot);
   }
   
-  void drawCurve(color c){
+  void drawCurve(color c, PGraphics canvas){
     float noise = 0;
-    
     for (Point p: points){
-      fill(c);
+      canvas.fill(c);
       float dx = p.x-xPos;
       float dy = yPos-p.y;
       float dist = (float)Math.sqrt(sq(dx)+sq(dy));
@@ -37,7 +35,7 @@ class NoiseCurve {
       float newAng = ang+rotation;
       float nx = xPos+cos(newAng)*dist;
       float ny = yPos+sin(newAng)*dist;
-      ellipse(nx,ny,pointSize,pointSize);
+      canvas.ellipse(nx,ny,pointSize,pointSize);
     }
   }
   
