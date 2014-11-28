@@ -1,11 +1,9 @@
 class Point {
-  int x;
-  int y;
-  color c;
+  float x;
+  float y;
   
-  Point(int x, int y, color c){
+  Point(float x, float y){
     this.x = x;
     this.y = y;
-    this.c = c;
   }
 }
