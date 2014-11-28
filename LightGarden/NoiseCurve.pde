@@ -4,24 +4,26 @@ class NoiseCurve {
   float xPos;
   float yPos;
   float rotation = 0;
-  float pointSize = 9;
+  float pointSize = 3;
+  float noiseMax = 2.8;
   
-  NoiseCurve(float size,float x, float y, float rotation){
+  NoiseCurve(float size,float x, float y, float rotation, float noiseMax){
     xPos = x;
     yPos = y;
     points = new ArrayList<Point>();
     numPoints = size;
     this.rotation = rotation;
+    this.noiseMax = noiseMax;
     float noise = 0;
     for (int i=0;i<numPoints;i++){
-      noise += (float)((Math.random()*8)-4);
+      noise += (float)((Math.random()*noiseMax)-noiseMax/2);
       Point p = new Point(xPos+i,yPos+noise);
       points.add(p);
     }
   }
   
   NoiseCurve(float size, RPoint marker){
-    this(size,marker.x,marker.y,marker.rot);
+    this(size,marker.x,marker.y,marker.rot,marker.dist/100);
   }
   
   void drawCurve(color c, PGraphics canvas){
