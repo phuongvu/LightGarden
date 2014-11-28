@@ -21,7 +21,7 @@ class NoiseCurve {
     }
   }
   
-  NoiseCurve(int size, RadSymPoint marker){
+  NoiseCurve(int size, RPoint marker){
     this(size,marker.x,marker.y,marker.rot);
   }
   

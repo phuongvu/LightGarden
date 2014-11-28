@@ -18,7 +18,7 @@ void setup() {
 void draw() { 
   fill(0,0,0,8);
   rect(0,0,width,height);
-  ArrayList<RadSymPoint> markers = getRadialSymmetry(sym);
+  ArrayList<RPoint> markers = getRadialSymmetry(sym);
   if (mouseDown){
     drawCurves(markers);
   }else{
@@ -26,17 +26,17 @@ void draw() {
   }
 }
 
-void drawCurves(ArrayList<RadSymPoint> markers){
-  for (RadSymPoint p : markers){
+void drawCurves(ArrayList<RPoint> markers){
+  for (RPoint p : markers){
     curve = new NoiseCurve(curveSize,p);
     c = color(0,0,random(55)+200,16);
     curve.drawCurve(c);
   }
 }
 
-void drawMarkers(ArrayList<RadSymPoint> markers){
+void drawMarkers(ArrayList<RPoint> markers){
   fill(255,255,255,40);
-  for (RadSymPoint p : markers){
+  for (RPoint p : markers){
     ellipse(p.x,p.y,markerSize,markerSize);
   }
 }
