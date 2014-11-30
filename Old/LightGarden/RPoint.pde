@@ -30,22 +30,3 @@ ArrayList<RPoint> getRadialSymmetry(int sym){
   }
   return markers;
 }
-
-ArrayList<RPoint> getRadialSymmetry(int sym, float xPos, float yPos, float centerX, float centerY){
-  ArrayList<RPoint> markers = new ArrayList<RPoint>();
-  
-  float dx = xPos-centerX;
-  float dy = yPos-centerY;
-  float dist = (float)sqrt(sq(dx)+sq(dy));
-  float ang = atan2(dy,dx);
-  markers.add(new RPoint(xPos,yPos,ang,dist));
-  
-  float shift = (2*PI)/sym;
-  for(int i=1;i<sym;i++){
-    ang+=shift;
-    float x = centerX+cos(ang)*dist;
-    float y = centerY+sin(ang)*dist;
-    markers.add(new RPoint(x,y,ang,dist));
-  }
-  return markers;
-}

@@ -4,7 +4,7 @@ class NoiseCurve {
   float xPos;
   float yPos;
   float rotation = 0;
-  float pointSize = 2.5;
+  float pointSize = 3;
   float noiseMax = 2.8;
   
   NoiseCurve(float size,float x, float y, float rotation, float noiseMax){
@@ -23,7 +23,7 @@ class NoiseCurve {
   }
   
   NoiseCurve(float size, RPoint marker){
-    this(size,marker.x,marker.y,marker.rot,marker.dist/160);
+    this(size,marker.x,marker.y,marker.rot,marker.dist/100);
   }
   
   void drawCurve(color c, PGraphics canvas){

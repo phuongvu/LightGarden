@@ -40,7 +40,7 @@ void drawCurves(ArrayList<RPoint> markers){
   drawing.noStroke();
   for (RPoint p : markers){
     curve = new NoiseCurve(p.dist/2+random(p.dist/2)+8,p);
-    c = color(0,180,random(55)+200,12);
+    c = color(0,random(180),random(55)+200,12);
     curve.drawCurve(c,drawing);
   }
   drawing.endDraw();
