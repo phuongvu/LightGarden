@@ -23,7 +23,7 @@ int fadeRate = 3;
 
 int colorIndex = 0;
 
-color hues[] = {197,120,145,200};
+color hues[] = {207,222,268,152};
 
 boolean useController = false;
 boolean btnDown = false;
@@ -84,39 +84,34 @@ void draw() {
       drawing.popMatrix();
     }
     drawing.endDraw();
-  }//else{
-    drawMarkers(markers);
-    if(fade&&frameCnt>fadeRate){
-      drawing.beginDraw();
-      drawing.fill(0,0,0,5);
-      drawing.rect(0,0,width,height);
-      drawing.endDraw();
-      frameCnt = 0;
-    }
-  //}
+  }
   image(drawing,0,0);
-  //if(((!mouseDown&&!useController)||(useController&&!btnDown))&&!presentMode){
+  if(((!mouseDown&&!useController)||(useController&&!btnDown))&&!presentMode){
+    drawMarkers(markers,15);
+  }else{
+    drawMarkers(markers,5);
+  }
+  image(overlay,0,0);
+  if (bilateralSym){
+    pushMatrix();
+    scale(-1,1);
+    translate(-width,0);
     image(overlay,0,0);
-    if (bilateralSym){
-      pushMatrix();
-      scale(-1,1);
-      translate(-width,0);
-      image(overlay,0,0);
-      popMatrix();
-    }
-  //}
+    popMatrix();
+  }
   
 }
 
-void drawMarkers(ArrayList<RPoint> markers){
+void drawMarkers(ArrayList<RPoint> markers,int scale){
   overlay.beginDraw();
   overlay.noStroke();
   overlay.clear();
   markerSize = 20;
-  overlay.fill(255,255,255,80);
+  setColor(overlay,80);
   for (RPoint p : markers){
     overlay.ellipse(p.x,p.y,markerSize,markerSize);
-    overlay.fill(255,255,255,40);
+    overlay.fill(255,0,255,40);
+    markerSize = scale;
   }
   overlay.endDraw();
 }
@@ -137,17 +132,17 @@ void drawStars(ArrayList<RPoint> markers,PGraphics layer){
   layer.beginDraw();
   layer.noStroke();
   layer.smooth(2);
-  layer.fill(255,255,255,60);
-  setColor(layer,starOpacity);
   for (RPoint p : markers){
     markerSize = 2+p.dist/340;
     float numPoints = p.dist/60;
     float spread = 9;
+    float brightness = constrain(240-(p.dist/4),60,255);
+    setColor(layer,brightness,starOpacity);
     layer.ellipse(p.x,p.y,markerSize,markerSize);
     for (int i=0;i<numPoints;i++){
       float rx = random(p.dist/spread)-(p.dist/spread)/2;
       float ry = random(p.dist/spread)-(p.dist/spread)/2;
-      setColor(layer,starOpacity);
+      setColor(layer,brightness,starOpacity);
       layer.ellipse(p.x+rx,p.y+ry,markerSize,markerSize);
     }
   }
@@ -158,11 +153,10 @@ void drawBursts(ArrayList<RPoint> markers,PGraphics layer){
   layer.beginDraw();
   layer.noStroke();
   layer.smooth(2);
-  layer.fill(255,255,255,60);
   setColor(layer,starOpacity);
   for (RPoint p : markers){
     markerSize = 2+p.dist/340;
-    float offset = p.dist/10;
+    float offset = p.dist/12;
     
     layer.ellipse(p.x,p.y,markerSize*1.4,markerSize*1.4);
     float ox = p.x + cos(p.rot)*offset;
@@ -204,7 +198,7 @@ void checkInput(){
       }
     }else if (k.equals("k")){
       colorIndex++;
-      if(colorIndex>3){
+      if(colorIndex>hues.length-1){
         colorIndex = 0;
       }
     }
@@ -221,7 +215,16 @@ void mouseReleased(){
 
 color setColor(PGraphics layer, float opacity){
   int hue = currentHue();
+  layer.colorMode(HSB,360,255,255,255);
   c = color(hue,255,178,opacity);
+  layer.fill(c);
+  return c;
+}
+
+color setColor(PGraphics layer, float brightness, float opacity){
+  int hue = currentHue();
+  layer.colorMode(HSB,360,255,255,255);
+  c = color(hue,255,brightness,opacity);
   layer.fill(c);
   return c;
 }
