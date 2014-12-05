@@ -1,6 +1,5 @@
 class Point {
-  float x;
-  float y;
+  float x,y;
   
   Point(float x, float y){
     this.x = x;

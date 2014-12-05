@@ -16,8 +16,14 @@ class LightBrush {
   float xPos,yPos; //Current brush position
   
   float strokeX,strokeY; //Location where the current stroke started
+  int strokeStart; //Millis when stroke started
+  int timeDown; //Millis since stroke started
+  int lastStroke; //Millis when last stroke ended;
+  float endX, endY; //Location where the last stroke ended
+  float lastX,lastY; //Location on last frame
   
   PShape markerShape; //could be PImage or PGraphics instead if necessary
+  float markerWidth, markerHeight; //For proper positioning of marker points;
   String brushName; //Uniquely identifies each type of brush
   boolean brushDown; //Whether or not the brush is currently drawing
   
@@ -27,7 +33,9 @@ class LightBrush {
   PGraphics dLayer; //The overall drawing layer
   PGraphics oLayer; //The marker overlay layer
   
-  LightBrush(){ //Should be just basic initialization and default config
+  Pointer seed; //An object which tracks the position of the pointing device (mouse or seed controller)
+  
+  LightBrush(Pointer pointer){ //Should be just basic initialization and default config
     brushDown = false;
     brushName = "Default";
     bilateralSym = true;
@@ -36,28 +44,39 @@ class LightBrush {
     centerY = height/2;
     xPos = centerX;
     yPos = centerY;
+    lastX = xPos;
+    lastY = yPos;
+    endX = xPos;
+    endY = yPos;
     dLayer = createGraphics(width,height);
     oLayer = createGraphics(width,height);
     
     dLayer.beginDraw();
     dLayer.background(0);
     dLayer.endDraw();
+    seed = pointer;
+    
+    /*PShape circle = createShape(ELLIPSE,0,0,20,20);
+    circle.disableStyle();
+    markerShape = circle;*/
+    markerWidth = markerHeight = 20;
   }
   
   PGraphics drawFrame(ArrayList<RPoint> markers,PGraphics layer){ //Called from main script when brush is down; //Could pass marker positions, or have each brush generate them based on parameters
     return layer;
   }
   
-  PGraphics drawMarkers(ArrayList<RPoint> markers,PGraphics layer,int mainScale,int scale){ //Draw appropriate markers based on brush color and whether or not it's currently being drawn with
+  PGraphics drawMarkers(ArrayList<RPoint> markers,PGraphics layer,float mainScale,float scale){ //Draw appropriate markers based on brush color and whether or not it's currently being drawn with
     layer.beginDraw();
     layer.noStroke();
     layer.clear();
-    float markerSize = mainScale;
+    float markerSize = mainScale*markerWidth;
     setColor(layer,120);
     for (RPoint p : markers){
+      
       layer.ellipse(p.x,p.y,markerSize,markerSize);
       layer.fill(255,0,255,40);
-      markerSize = scale;
+      markerSize = scale*markerWidth;
     }
     layer.endDraw();
     return layer;
@@ -73,9 +92,15 @@ class LightBrush {
     this.brightnessJitter = brightnessJitter;
   }
   
-  void updatePosition(float x, float y){ //Simplest implementation of updating brush position, override for more complex smoothing/lagging etc
-    xPos = x;
-    yPos = y;
+  void updatePosition(){ //Simplest implementation of updating brush position from pointer, override for more complex smoothing/lagging etc
+    lastX = xPos;
+    lastY = yPos;
+    xPos = seed.x;
+    yPos = seed.y;
+  }
+  
+  void updateTime(){
+    timeDown = millis()-strokeStart;
   }
   
   void setSymOrigin(float x, float y){ //Set origin for radial symmetry, could be fixed to center, or based on the point where the stroke started
@@ -83,15 +108,19 @@ class LightBrush {
     centerY = y;
   }
   
-  void startStroke(float x, float y){
+  void startStroke(){
     brushDown = true;
-    strokeX = x;
-    strokeY = y;
-    updatePosition(x,y);
+    updatePosition();
+    strokeX = xPos;
+    strokeY = yPos;
+    strokeStart = millis();
   }
   
   void endStroke(){
+    endX = xPos;
+    endY = yPos;
     brushDown = false;
+    lastStroke = millis();
   }
   
   void drawFlipped(PGraphics layer, PGraphics image){
@@ -102,11 +131,12 @@ class LightBrush {
     layer.popMatrix();
   }
   
-  PGraphics update(PGraphics layer,PGraphics overlay,float x, float y){ //Ideally, this logic should never need to be overridden, only the drawFrame and drawMarker methods would change
-    updatePosition(x,y);
-    ArrayList<RPoint> markers = getRadialSymmetry(sym,xPos,yPos,centerX,centerY);
+  PGraphics update(PGraphics layer,PGraphics overlay){ //Ideally, this logic should never need to be overridden, only the drawFrame and drawMarker methods would change
+    updatePosition(); //Update current brush position from pointer
+    ArrayList<RPoint> markers = getRadialSymmetry(sym,xPos,yPos,centerX,centerY); //Generate radial symmetry for this frame
     overlay.clear();
     if(brushDown){
+      updateTime();
       layer.beginDraw();
       dLayer.clear();
       drawFrame(markers,dLayer);
@@ -120,16 +150,16 @@ class LightBrush {
     overlay.beginDraw();
     oLayer.clear();
     if(brushDown){
-      drawMarkers(markers,oLayer,12,5);
+      drawMarkers(markers,oLayer,0.8,0.25);
     }else{
-      drawMarkers(markers,oLayer,20,10);
+      drawMarkers(markers,oLayer,1.0,0.8);
     }
     overlay.image(oLayer,0,0);
     if(bilateralSym){
       if(brushDown){
-        drawMarkers(markers,oLayer,8,5);
+        drawMarkers(markers,oLayer,0.6,0.25);
       }else{
-        drawMarkers(markers,oLayer,12,10);
+        drawMarkers(markers,oLayer,0.9,0.8);
       }
       drawFlipped(overlay,oLayer);
     }
