@@ -1,5 +1,12 @@
 import processing.serial.*;
 
+public void init() { //For removing window border
+  frame.removeNotify(); 
+  frame.setUndecorated(true); 
+  frame.addNotify(); 
+  super.init();
+}
+
 Serial port;
 NoiseCurve curve;
 color c;
@@ -34,7 +41,8 @@ int brushIndex = 0;
 Pointer seed;
 
 void setup() {
-  size(1440, 900,P2D);
+  size(1440,900,P2D);
+  frame.setLocation(0,0);
   controller = new GameInput();
   overlay = createGraphics(width,height);
   drawing = createGraphics(width,height);
