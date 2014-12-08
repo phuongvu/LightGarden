@@ -42,8 +42,10 @@ int brushIndex = 0;
 Pointer seed;
 
 void setup() {
-  size(2560,720,P2D);
-  frame.setLocation(1262,0);
+  //  size(2560,720,P2D);
+  //  frame.setLocation(1262,0);
+  size(1440,900,P2D);
+  frame.setLocation(0,0);
   controller = new GameInput();
   overlay = createGraphics(width,height);
   drawing = createGraphics(width,height);
