@@ -7,7 +7,7 @@ class LightBrush {
   int strokeWidth; //Stroke settings
   color strokeColor;
   
-  int brushColor; //Brush fill settings
+  color brushColor; //Brush fill settings
   int hueJitter;
   int brightnessJitter;
   
@@ -165,21 +165,5 @@ class LightBrush {
     }
     overlay.endDraw();
     return layer;
-  }
-  
-  color setColor(PGraphics layer, float opacity){
-    int hue = brushColor;
-    layer.colorMode(HSB,360,255,255,255);
-    c = color(hue,255,178,opacity);
-    layer.fill(c);
-    return c;
-  }
-  
-  color setColor(PGraphics layer, float brightness, float opacity){
-    int hue = brushColor;
-    layer.colorMode(HSB,360,255,255,255);
-    c = color(hue,255,brightness,opacity);
-    layer.fill(c);
-    return c;
   }
 }

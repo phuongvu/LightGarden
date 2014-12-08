@@ -3,7 +3,6 @@ class StarburstBrush extends LightBrush {
   StarburstBrush(Pointer seed){
     super(seed);
     brushName = "Starburst";
-    brushColor = 207;
   }
   
   @Override PGraphics drawFrame(ArrayList<RPoint> markers,PGraphics layer){
@@ -34,7 +33,6 @@ class ConvergeBrush extends LightBrush {
   ConvergeBrush(Pointer seed){
     super(seed);
     brushName = "Converge";
-    brushColor = 222;
   }
   
   @Override PGraphics drawFrame(ArrayList<RPoint> markers,PGraphics layer){
@@ -88,14 +86,13 @@ class SquiggleBrush extends LightBrush {
   SquiggleBrush(Pointer seed){
     super(seed);
     brushName = "Squiggle";
-    brushColor = 267;
   }
   
   @Override PGraphics drawFrame(ArrayList<RPoint> markers, PGraphics layer){
     layer.beginDraw();
     layer.noFill();
     //setColor(layer,50);
-    layer.stroke(color(brushColor,255,255,threadOpacity));
+    layer.stroke(color(currentHue(),255,255,threadOpacity));
     layer.strokeWeight(0.8);
     ArrayList<RPoint> startPoints = getRadialSymmetry(sym,strokeX,strokeY,centerX,centerY);
     ArrayList<RPoint> lastPoints = getRadialSymmetry(sym,lastX,lastY,centerX,centerY);

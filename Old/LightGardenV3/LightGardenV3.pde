@@ -16,8 +16,8 @@ boolean presentMode = false;
 String mode = "curve";
 float curveOpacity = 24;
 float starOpacity = 165;
-float threadOpacity = 24;
-PGraphics overlay, overlay2;
+float threadOpacity = 60;
+PGraphics overlay;
 PGraphics drawing;
 GameInput controller;
 int frameCnt = 0;
@@ -36,18 +36,16 @@ boolean btnDown = false;
 float cx, cy, centerX, centerY;
 
 LightBrush currentBrush, starfieldBrush, starburstBrush, convergeBrush, squiggleBrush;
-LightBrush brush1, brush2;
 ArrayList<LightBrush> brushes;
 int brushIndex = 0;
 
-Pointer seed1, seed2;
+Pointer seed;
 
 void setup() {
   size(2560,720,P2D);
   frame.setLocation(1262,0);
   controller = new GameInput();
   overlay = createGraphics(width,height);
-  overlay2 = createGraphics(width,height);
   drawing = createGraphics(width,height);
   
   colorMode(HSB,360,255,255,255);
@@ -62,22 +60,19 @@ void setup() {
   centerX = cx;
   centerY = cy;
   
-  seed1 = new Pointer();
-  seed2 = new Pointer();
+  seed = new Pointer();
   
   brushes = new ArrayList<LightBrush>();
-  squiggleBrush = new SquiggleBrush(seed2);
+  squiggleBrush = new SquiggleBrush(seed);
   brushes.add(squiggleBrush);
-  starburstBrush = new StarburstBrush(seed1);
+  starburstBrush = new StarburstBrush(seed);
   brushes.add(starburstBrush);
-  starfieldBrush = new StarfieldBrush(seed2);
+  starfieldBrush = new StarfieldBrush(seed);
   brushes.add(starfieldBrush);
-  convergeBrush = new ConvergeBrush(seed2);
+  convergeBrush = new ConvergeBrush(seed);
   brushes.add(convergeBrush);
   
-  currentBrush = brushes.get(1);
-  brush1 = brushes.get(1);
-  brush2 = brushes.get(3);
+  currentBrush = brushes.get(0);
   
   println(Serial.list());
   if(useController){
@@ -89,21 +84,28 @@ void draw() {
   
   float xOffset = 0;
   float yOffset = 0;
+  if(rotate){
+    rotation += 0.009;
+    xOffset = cos(rotation)*-width/2;
+    yOffset = sin(rotation)*-height/2;
+  }
   frameCnt++;
   checkInput();
   background(0);
   
-  //seed.update(mouseX,mouseY);
+  seed.update(mouseX,mouseY);
   //seed.update(cx,cy);
   
-  brush1.update(drawing,overlay);
-  brush2.update(drawing,overlay2);
+  currentBrush.update(drawing,overlay);
   
+  pushMatrix();
+  rotate(rotation);
+  translate(xOffset,yOffset);
   image(drawing,0,0);
+  popMatrix();
   
   if(!presentMode){
     image(overlay,0,0);
-    image(overlay2,0,0);
   }
   /*drawing.beginDraw();
   drawing.fill(0,19);
@@ -157,7 +159,7 @@ void checkInput(){
     }
   }
   
-  /*if(currentBrush.brushDown){
+  if(currentBrush.brushDown){
     if(!btnDown){
       currentBrush.endStroke();
     }
@@ -165,17 +167,19 @@ void checkInput(){
     if(btnDown){
       currentBrush.startStroke();
     }
-  }*/
+  }
   
   
 }
 
 void mousePressed(){
-  currentBrush.startStroke();
+  btnDown = true;
+  //currentBrush.startStroke();
 }
 
 void mouseReleased(){
-  currentBrush.endStroke();
+  btnDown = false;
+  //currentBrush.endStroke();
 }
 
 color setColor(PGraphics layer, float opacity){
@@ -215,52 +219,21 @@ void serialEvent(Serial myPort) {
         String data[] = split(s,",");
         println(data);
         if(data[0].equals("0")){
-          //Controller 1:
           if(data[1].equals("0")){
-            if(!seed1.down){
-              brush1.startStroke();
-            }
-            seed1.down = true;
+            btnDown = true;
           }else{
-            if(seed1.down){
-              brush1.endStroke();
-            }
-            seed1.down = false;
+            btnDown = false;
           }
+          println(btnDown);
           float rx = Float.parseFloat(data[2]);
           float ry = Float.parseFloat(data[3]);
           float mx = map(rx,-1,1,0,width);
           float my = map(ry,-1,1,0,height);
           float ncx = constrain(mx,0,width);
           float ncy = constrain(my,0,height);
-          seed1.update(ncx,ncy);
-          //cx = (cx+ncx)/2;
-          //cy = (cy+ncy)/2;
-          println("Controller 1: "+seed1.down+" X:"+ncx+" Y:"+ncy);
-        }else{
-          //Controller 2:
-          if(data[1].equals("0")){
-            if(!seed2.down){
-              brush2.startStroke();
-            }
-            seed2.down = true;
-          }else{
-            if(seed2.down){
-              brush2.endStroke();
-            }
-            seed2.down = false;
-          }
-          float rx = Float.parseFloat(data[2]);
-          float ry = Float.parseFloat(data[3]);
-          float mx = map(rx,-1,1,0,width);
-          float my = map(ry,-1,1,0,height);
-          float ncx = constrain(mx,0,width);
-          float ncy = constrain(my,0,height);
-          seed2.update(ncx,ncy);
-          //cx = (cx+ncx)/2;
-          //cy = (cy+ncy)/2;
-          println("Controller 2: "+seed2.down+" X:"+ncx+" Y:"+ncy);
-          
+          cx = (cx+ncx)/2;
+          cy = (cy+ncy)/2;
+          println("Button pressed: "+btnDown+" X:"+cx+" Y:"+cy);
         }
       } catch (Exception e){
         println(s);
