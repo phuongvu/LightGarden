@@ -33,7 +33,6 @@ ArrayList<RPoint> getRadialSymmetry(int sym){
 
 ArrayList<RPoint> getRadialSymmetry(int sym, float xPos, float yPos, float centerX, float centerY){
   ArrayList<RPoint> markers = new ArrayList<RPoint>();
-  
   float dx = xPos-centerX;
   float dy = yPos-centerY;
   float dist = (float)sqrt(sq(dx)+sq(dy));

@@ -22,10 +22,14 @@ class LightBrush {
   float endX, endY; //Location where the last stroke ended
   float lastX,lastY; //Location on last frame
   
+  PShape strokeGraphic;
   PShape markerShape; //could be PImage or PGraphics instead if necessary
   float markerWidth, markerHeight; //For proper positioning of marker points;
   String brushName; //Uniquely identifies each type of brush
   boolean brushDown; //Whether or not the brush is currently drawing
+  
+  float mainMarkerOpacity = 160;
+  float markerOpacity = 40;
   
   boolean bilateralSym;
   int sym;
@@ -70,12 +74,13 @@ class LightBrush {
     layer.beginDraw();
     layer.noStroke();
     layer.clear();
+    markers = getRadialSymmetry(sym,seed.x,seed.y,centerX,centerY);
     float markerSize = mainScale*markerWidth;
-    setColor(layer,120);
+    setColor(layer,mainMarkerOpacity);
     for (RPoint p : markers){
       
       layer.ellipse(p.x,p.y,markerSize,markerSize);
-      layer.fill(255,0,255,40);
+      layer.fill(255,0,255,markerOpacity);
       markerSize = scale*markerWidth;
     }
     layer.endDraw();
@@ -114,6 +119,10 @@ class LightBrush {
     strokeX = xPos;
     strokeY = yPos;
     strokeStart = millis();
+    
+    sound2.setPlayerPosition((double)random(2000));
+    sound2.setEnvelope(0.5, 500);
+    
   }
   
   void endStroke(){
@@ -121,6 +130,11 @@ class LightBrush {
     endY = yPos;
     brushDown = false;
     lastStroke = millis();
+    
+    sound2.setEnvelope(0.5, 200);
+    sound2.setEnvelope(0.3, 400);
+    sound2.setEnvelope(0.1, 600);
+    sound2.setEnvelope(0.0, 800);
   }
   
   void drawFlipped(PGraphics layer, PGraphics image){
@@ -181,5 +195,39 @@ class LightBrush {
     c = color(hue,255,brightness,opacity);
     layer.fill(c);
     return c;
+  }
+  color setColor(PGraphics layer, float saturation, float brightness, float opacity){
+    int hue = brushColor;
+    layer.colorMode(HSB,360,255,255,255);
+    c = color(hue,saturation,brightness,opacity);
+    layer.fill(c);
+    return c;
+  }
+}
+
+class SmoothBrush extends LightBrush {
+  
+  float maxSpeed = 5;
+  
+  SmoothBrush(Pointer pointer){
+    super(pointer);
+  }
+  
+  @Override void updatePosition(){
+    if(brushDown){
+      float dx = seed.x - xPos;
+      float dy = seed.y - yPos;
+      float speed = (float)sqrt(sq(dx)+sq(dy));
+      if(speed>maxSpeed){
+        dx = (dx/speed)*maxSpeed; 
+        dy = (dy/speed)*maxSpeed;
+      }
+      lastX = xPos;
+      lastY = yPos;
+      xPos += dx;
+      yPos += dy;
+    }else{
+      super.updatePosition();
+    }
   }
 }
